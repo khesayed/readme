@@ -1,1 +1,3 @@
-# readme
+# Index
+
+- [ZSH](/ZSH.md)
