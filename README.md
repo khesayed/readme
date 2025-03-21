@@ -1,3 +1,3 @@
 # Index
 
-- [ZSH](/ZSH.md)
+- [ZSH native configurations without Oh My Zsh!](/ZSH.md)
