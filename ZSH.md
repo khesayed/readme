@@ -1,6 +1,6 @@
 # ZSH native configurations without Oh My Zsh!
 
-[![Watch the video](./assets/ZSH%20Thumb.png)](https://youtu.be/Lik1bsq8RpI)
+[![Watch the video](./assets/ZSH%20Thumb.png)](https://www.youtube.com/watch?v=Lik1bsq8RpI&list=PLfUj59Z1A712yRt6r4meMVV0mnbf77JH2)
 
 ### ZSH dot files
 
@@ -37,6 +37,11 @@ export HISTIGNORE="exit:clear"
 export EDITOR="vim"
 # GUI/full-screen editing
 export VISUAL="vim"
+
+# set terminal colors 265
+# Check what colors terminal uses echo $TERM
+# Print all 256 colors in terminal for i in {0..255}; do print -P "%F{$i}$i " ; done
+# export TERM=xterm-256color
 ```
 
 ### .zshrc
@@ -44,10 +49,12 @@ export VISUAL="vim"
 ```sh
 # .zshrc
 
-# Completion official documentations
+# compinit - enable autocomplete and loads a function only when needed instead of at startup
 # https://zsh.sourceforge.io/Doc/Release/Completion-System.html#Completion-System
-# Enable autocomplete and loads a function only when needed instead of at startup
-autoload -Uz compinit
+# vcs_info - enable version control module
+autoload -Uz compinit vcs_info
+
+# Autocompletion
 # faster Zsh startup by caching auto completion
 compinit -d "$XDG_CACHE_HOME/zsh/.zcompdump"
 
@@ -68,10 +75,33 @@ zstyle ':completion:*' file-sort modification
 # case senstive correction and complete partial words
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
+# Git
+# Enable git from version control module
+zstyle ':vcs_info:git:*' enable git
+# Enable check for working-copy changes (un)staged changes
+zstyle ':vcs_info:*' check-for-changes true
+# Repalce U by * for unstaged
+zstyle ':vcs_info:*' unstagedstr ' *'
+# Replace S by + for staged
+zstyle ':vcs_info:*' stagedstr ' +'
+
+# Prompt formatting
+# %b the current branch name
+# %u are there any unstaged changes
+# %c are there any staged changes
+# %a the current Git action being performed (this only makes sense in actionformats)
+
+# Define how the Git branch is displayed (default format)
+zstyle ':vcs_info:git:*' formats '%F{180} %b%f %F{11}%u%c%f'
+# Show additional info when in ongoing actions (rebase|merge|Cherry-pick|Revert)
+zstyle ':vcs_info:git:*' actionformats '%F{180} %b%f %F{9}%a%f %F{11}%u%c%f'
+
+
 # -----------
 # OPTIONS
 # https://zsh.sourceforge.io/Doc/Release/Options.html#Options
 # -----------
+
 # Spelling correction
 setopt CORRECT
 # Remove duplicate commands from history
@@ -84,10 +114,14 @@ setopt APPEND_HISTORY
 setopt SHARE_HISTORY
 # Ignores commands start with space from history
 setopt HIST_IGNORE_SPACE
+# Enable variable in PROMPT
+setopt PROMPT_SUBST
+
 
 # -----------
 # ALIASES
 # -----------
+
 # [[ -f "$ZDOTDIR/aliases" ]] && source "$ZDOTDIR/aliases"
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -97,25 +131,28 @@ alias v='vim'
 alias ll='ls -la --color=auto'
 alias gst='git status'
 alias vsc='code .'
-# Reloads zsh configuration
-alias zreload='source ~/.config/zsh/.zshrc && echo "🔄 Zsh reloaded!"'
 
 # -----------
 # KEYBINDING
 # -----------
+
 # Activate vim mode
 bindkey -v
 bindkey -s '^o' 'code ~/Desktop/zsh\n'
 
 # -----------
-# PROMPTs
+# functions
+# -----------
+
+# Special function that runs before each prompt is displayed
+precmd() { 
+	vcs_info
+}
+
+# -----------
+# PROMPT
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html#Prompt-Expansion
 # -----------
-# Left prompt
-PROMPT='%F{blue} %1~: %f '
-
-# Right prompt
-RPROMPT='%K{blue}%F{red} %D%f%k'
 
 # Styling
 # %B  %b  #Bold
@@ -123,6 +160,10 @@ RPROMPT='%K{blue}%F{red} %D%f%k'
 # %S  %s  #Highlight
 # %F{color}   %f  #Foreground color
 # %K{color}   %k  #Background color
+
+PROMPT='%F{115} %2~ %f${vcs_info_msg_0_}
+%F{155}❯%f '
+
 
 # -----------
 # PLUGINS
